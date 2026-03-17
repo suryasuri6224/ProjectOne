@@ -1,0 +1,44 @@
+name: CI Build & Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: self-hosted
+
+    steps:
+      # ---------- CHECKOUT ----------
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # ---------- BACKEND ----------
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Backend Test
+        run: |
+          cd backend
+          mvn clean test          
+
+      - name: Backend Build
+        run: |
+          cd backend
+          mvn clean package          
+
+      # ---------- FRONTEND ----------
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Frontend Install & Test
+        run: |
+          cd frontend
+          npm install
+          npm test          

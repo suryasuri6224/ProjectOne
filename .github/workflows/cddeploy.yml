@@ -1,0 +1,58 @@
+name: CD Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      # ---------- CHECKOUT ----------
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # ---------- SETUP JAVA ----------
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ---------- BUILD BACKEND ----------
+      - name: Build Backend
+        run: |
+          cd backend
+          mvn clean package -DskipTests
+
+      # ---------- DEPLOY BACKEND ----------
+      - name: Deploy Backend
+        shell: powershell
+        run: |
+          $jarName = "backend-1.0.0.jar"
+          $jarPath = "$env:GITHUB_WORKSPACE\backend\target\$jarName"
+
+          if (!(Test-Path $jarPath)) {
+              Write-Host "JAR file not found!"
+              exit 1
+          }
+
+          Write-Host "Checking for existing backend process..."
+
+          $process = Get-CimInstance Win32_Process |
+          Where-Object { $_.CommandLine -like "*$jarName*" }
+
+          if ($process) {
+              Write-Host "Stopping existing backend process..."
+              $process | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+          }
+          else {
+              Write-Host "No existing backend process found."
+          }
+
+          Write-Host "Starting new Java app..."
+          Start-Process java "-jar `"$jarPath`"" -WindowStyle Hidden
+
+          Write-Host "Deployment completed successfully."

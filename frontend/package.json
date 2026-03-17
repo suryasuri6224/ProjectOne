@@ -1,0 +1,17 @@
+{
+  "name": "registration-form-test",
+  "version": "1.0.0",
+  "description": "Project with CI/CD validation tests",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFiles": ["<rootDir>/jest.setup.js"]
+  }
+}

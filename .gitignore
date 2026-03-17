@@ -1,0 +1,4 @@
+*LOCALAPPDATA*
+backend/target/
+frontend/node_modules/
+*.log
